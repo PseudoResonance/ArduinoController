@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Management;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,13 +117,12 @@ namespace ArduinoController
             if (Serial.SelectedItem != null)
             {
                 String name = Serial.SelectedItem.ToString();
-                serialName = name;
+                serialName = name.Split(' ')[0];
                 SetupPort();
             }
             else
             {
-                serialPort.Close();
-                isSerialReady = false;
+                CloseSerial();
                 serialPort = null;
             }
         }
@@ -255,12 +255,20 @@ namespace ArduinoController
             }
         }
 
+        private void CloseSerial()
+        {
+            Console.WriteLine("Closing current port");
+            serialPort.DiscardInBuffer();
+            serialPort.DiscardOutBuffer();
+            serialPort.Close();
+            isSerialReady = false;
+        }
+
         private bool SetupPort()
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                Console.WriteLine("Closing current port");
-                serialPort.Close();
+                CloseSerial();
             }
             if (serialName.Length > 0)
             {
@@ -269,6 +277,8 @@ namespace ArduinoController
                 {
                     serialPort = new SerialPort(serialName);
                     serialPort.BaudRate = baudRate;
+                    serialPort.ReadTimeout = 1000;
+                    serialPort.WriteTimeout = 1000;
                     serialPort.Open();
                     isSerialReady = true;
                     Console.WriteLine("Port open!");
@@ -393,9 +403,14 @@ namespace ArduinoController
         {
             Boolean updated = false;
             List<String> tempList = new List<String>();
-            foreach (string s in SerialPort.GetPortNames())
+            using (var searcher = new ManagementObjectSearcher
+                 ("SELECT * FROM WIN32_SerialPort"))
             {
-                tempList.Add(s);
+                string[] portnames = SerialPort.GetPortNames();
+                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
+                tempList = (from n in portnames
+                             join p in ports on n equals p["DeviceID"].ToString()
+                             select n + " " + p["Caption"]).ToList();
             }
 
             foreach (var item in tempList)
@@ -422,9 +437,12 @@ namespace ArduinoController
                     instance.Serial.Items.Refresh();
                     if (serialList.Count > 0)
                     {
-                        if (serialList.Contains(serialName))
+                        foreach (String n in serialList)
                         {
-                            instance.Serial.SelectedItem = serialName;
+                            if (n.StartsWith(serialName))
+                            {
+                                instance.Serial.SelectedItem = n;
+                            }
                         }
                     }
                 });
