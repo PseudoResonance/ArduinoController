@@ -262,22 +262,26 @@ namespace ArduinoController
                 Console.WriteLine("Closing current port");
                 serialPort.Close();
             }
-            Console.WriteLine("Setting up Serial: " + serialName + " with baud rate: " + baudRate);
-            try
+            if (serialName.Length > 0)
             {
-                serialPort = new SerialPort(serialName);
-                serialPort.BaudRate = baudRate;
-                serialPort.Open();
-                isSerialReady = true;
-                Console.WriteLine("Port open!");
-                return true;
+                Console.WriteLine("Setting up Serial: " + serialName + " with baud rate: " + baudRate);
+                try
+                {
+                    serialPort = new SerialPort(serialName);
+                    serialPort.BaudRate = baudRate;
+                    serialPort.Open();
+                    isSerialReady = true;
+                    Console.WriteLine("Port open!");
+                    return true;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Port failed to open!");
+                    isSerialReady = false;
+                    return false;
+                }
             }
-            catch (Exception)
-            {
-                Console.WriteLine("Port failed to open!");
-                isSerialReady = false;
-                return false;
-            }
+            return false;
         }
 
         private void testPort()
