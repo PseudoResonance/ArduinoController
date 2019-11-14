@@ -403,14 +403,12 @@ namespace ArduinoController
         {
             Boolean updated = false;
             List<String> tempList = new List<String>();
-            using (var searcher = new ManagementObjectSearcher
-                 ("SELECT * FROM WIN32_SerialPort"))
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'"))
             {
-                string[] portnames = SerialPort.GetPortNames();
-                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
-                tempList = (from n in portnames
-                             join p in ports on n equals p["DeviceID"].ToString()
-                             select n + " " + p["Caption"]).ToList();
+                var portnames = SerialPort.GetPortNames();
+                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
+
+                tempList = portnames.Select(n => n + " " + ports.FirstOrDefault(s => s.Contains(n))).ToList();
             }
 
             foreach (var item in tempList)
