@@ -117,7 +117,7 @@ namespace ArduinoController
             {
                 String name = Serial.SelectedItem.ToString();
                 serialName = name;
-                setupPort();
+                SetupPort();
             }
             else
             {
@@ -134,7 +134,7 @@ namespace ArduinoController
                 try
                 {
                     baudRate = int.Parse(BaudRate.Text);
-                    setupPort();
+                    SetupPort();
                 } catch (Exception) {}
             }
         }
@@ -144,7 +144,7 @@ namespace ArduinoController
             PollSerial();
         }
 
-        private float calculateDeadzone(short n)
+        private float CalculateDeadzone(short n)
         {
             if (Math.Abs((int)n) <= deadzoneRadius)
                 return 0;
@@ -156,7 +156,7 @@ namespace ArduinoController
             }
         }
 
-        private float calculatePercentage(byte n)
+        private float CalculatePercentage(byte n)
         {
             float c = (float)n / byte.MaxValue;
             if (c > 1)
@@ -194,27 +194,27 @@ namespace ArduinoController
             {
                 if (serialPort != null && serialPort.IsOpen && isSerialReady)
                 {
-                    byte[] tempArray = BitConverter.GetBytes(calculateDeadzone(leftX));
+                    byte[] tempArray = BitConverter.GetBytes(CalculateDeadzone(leftX));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 2, 4);
-                    tempArray = BitConverter.GetBytes(calculateDeadzone(leftY));
+                    tempArray = BitConverter.GetBytes(CalculateDeadzone(leftY));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 6, 4);
-                    tempArray = BitConverter.GetBytes(calculateDeadzone(rightX));
+                    tempArray = BitConverter.GetBytes(CalculateDeadzone(rightX));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 10, 4);
-                    tempArray = BitConverter.GetBytes(calculateDeadzone(rightY));
+                    tempArray = BitConverter.GetBytes(CalculateDeadzone(rightY));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 14, 4);
-                    tempArray = BitConverter.GetBytes(calculatePercentage(leftTrigger));
+                    tempArray = BitConverter.GetBytes(CalculatePercentage(leftTrigger));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 18, 4);
-                    tempArray = BitConverter.GetBytes(calculatePercentage(rightTrigger));
+                    tempArray = BitConverter.GetBytes(CalculatePercentage(rightTrigger));
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 22, 4);
@@ -236,7 +236,7 @@ namespace ArduinoController
                 {
                     testPortThread = new Thread(() =>
                     {
-                        testPort();
+                        TestPort();
                     });
                     testPortThread.Start();
                 }
@@ -248,16 +248,16 @@ namespace ArduinoController
                 {
                     testPortThread = new Thread(() =>
                     {
-                        testPort();
+                        TestPort();
                     });
                     testPortThread.Start();
                 }
             }
         }
 
-        private bool setupPort()
+        private bool SetupPort()
         {
-            if (serialPort != null)
+            if (serialPort != null && serialPort.IsOpen)
             {
                 Console.WriteLine("Closing current port");
                 serialPort.Close();
@@ -284,11 +284,11 @@ namespace ArduinoController
             return false;
         }
 
-        private void testPort()
+        private void TestPort()
         {
             while (!shutdown && !isSerialReady)
             {
-                if (setupPort())
+                if (SetupPort())
                     break;
                 Thread.Sleep(5000);
             }
