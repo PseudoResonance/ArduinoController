@@ -3,29 +3,44 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ArduinoController"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Closing="Window_Closing">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="389*"/>
-            <ColumnDefinition Width="7*"/>
-        </Grid.ColumnDefinitions>
-        <ComboBox x:Name="Controller" HorizontalAlignment="Left" Margin="126,13,0,0" VerticalAlignment="Top" Width="642" SelectionChanged="Controller_SelectionChanged"/>
-        <Label Content="Selected Controller" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="33"/>
-        <Slider x:Name="DeadzoneSlider" HorizontalAlignment="Left" Margin="126,52,0,0" VerticalAlignment="Top" Width="570" Minimum="0" Maximum="32767" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding DeadzoneCount}"/>
-        <Label Content="Deadzone Radius" HorizontalAlignment="Left" Margin="10,46,0,0" VerticalAlignment="Top" Height="33"/>
-        <TextBox x:Name="DeadzoneText" HorizontalAlignment="Left" Height="23" Margin="701,50,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
-        <ComboBox x:Name="Serial" HorizontalAlignment="Left" Margin="206,82,0,0" VerticalAlignment="Top" Width="562" SelectionChanged="Serial_SelectionChanged"/>
-        <Label Content="Selected Serial" HorizontalAlignment="Left" Margin="10,79,0,0" VerticalAlignment="Top" Height="33"/>
-        <Button Content="Refreh" HorizontalAlignment="Left" Margin="126,83,0,0" VerticalAlignment="Top" Width="75" Click="Serial_Refresh"/>
-        <Slider x:Name="UpdateSlider" HorizontalAlignment="Left" Margin="126,118,0,0" VerticalAlignment="Top" Width="570" Minimum="5" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding UpdateCount}"/>
-        <Label Content="Update Frequency" HorizontalAlignment="Left" Margin="10,112,0,0" VerticalAlignment="Top" Height="33"/>
-        <TextBox x:Name="UpdateText" HorizontalAlignment="Left" Height="23" Margin="701,118,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
-        <Label Content="Baud Rate" HorizontalAlignment="Left" Margin="10,145,0,0" VerticalAlignment="Top" Height="33"/>
-        <TextBox x:Name="BaudRate" HorizontalAlignment="Left" Height="23" Margin="126,147,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="200" Text="9600" LostFocus="Baud_FocusLost"/>
-        <TextBox x:Name="DebugOutput" HorizontalAlignment="Left" Height="23" Margin="126,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="642" Focusable="False"/>
-        <Label Content="Debug Output" HorizontalAlignment="Left" Margin="10,178,0,0" VerticalAlignment="Top" Height="33"/>
+        Title="Arduino Controller" Closing="Window_Closing" MinWidth="450" MinHeight="250" Width="700" WindowStartupLocation="CenterScreen" SizeToContent="Height">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Settings">
+                <MenuItem x:Name="Save" Header="_Save" Click="Save_Click"/>
+                <MenuItem x:Name="ShowDebug" Header="_Show Debug" IsCheckable="True" Click="ShowDebug_Click"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="SelectedControllerLabel" Content="Selected Controller" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center"/>
+            <Label x:Name="DeadzoneRadiusLabel" Content="Deadzone Radius" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Center"/>
+            <Label x:Name="SelectedSerialLabel" Content="Selected Serial" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center"/>
+            <Label x:Name="UpdateFrequencyLabel" Content="Update Frequency" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
+            <Label x:Name="BaudRateLabel" Content="Baud Rate" Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center"/>
+            <Label x:Name="DebugOutputLabel" Visibility="Hidden" Content="Debug Output" Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center"/>
 
-    </Grid>
+            <ComboBox x:Name="Controller" Grid.Column="1" Grid.Row="0" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Controller_SelectionChanged"/>
+            <Slider x:Name="DeadzoneSlider" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="0" Maximum="32767" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding DeadzoneCount}"/>
+            <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
+            <Button x:Name="RefreshSerial" Content="Refreh" Grid.Column="1" Grid.Row="2" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Left" Width="60" Click="Serial_Refresh"/>
+            <ComboBox x:Name="Serial" Grid.Column="1" Grid.Row="2" VerticalContentAlignment="Center" Margin="75,5,5,5" SelectionChanged="Serial_SelectionChanged"/>
+            <Slider x:Name="UpdateSlider" Grid.Column="1" Grid.Row="3" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="5" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding UpdateCount}"/>
+            <TextBox x:Name="UpdateText" Grid.Column="1" Grid.Row="3" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="4" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="9600" LostFocus="Baud_FocusLost"/>
+            <TextBox x:Name="DebugOutput" Visibility="Hidden" Grid.Column="1" Grid.Row="5" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Focusable="False"/>
+        </Grid>
+    </DockPanel>
 </Window>

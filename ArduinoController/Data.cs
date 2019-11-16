@@ -9,7 +9,7 @@ namespace ArduinoController
 {
     public class Data : INotifyPropertyChanged
     {
-        private int _deadzoneCount = MainWindow.deadzoneRadius;
+        private int _deadzoneCount = Main.deadzoneRadius;
         public int DeadzoneCount
         {
             get { return _deadzoneCount; }
@@ -18,13 +18,13 @@ namespace ArduinoController
                 if (_deadzoneCount != value)
                 {
                     _deadzoneCount = value;
-                    MainWindow.deadzoneRadius = (short)_deadzoneCount;
+                    Main.deadzoneRadius = (short)_deadzoneCount;
                     OnPropertyChanged("DeadzoneCount");
                 }
             }
         }
 
-        private int _updateCount = MainWindow.updateDelay;
+        private int _updateCount = Main.updateDelay;
         public int UpdateCount
         {
             get { return _updateCount; }
@@ -33,7 +33,7 @@ namespace ArduinoController
                 if (_updateCount != value)
                 {
                     _updateCount = value;
-                    MainWindow.updateDelay = (short)_updateCount;
+                    Main.updateDelay = (short)_updateCount;
                     OnPropertyChanged("UpdateCount");
                 }
             }
