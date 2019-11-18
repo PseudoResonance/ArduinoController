@@ -1,4 +1,4 @@
-#include <AFMotor.h>
+#include <MSMotorShield.h>
 
 #define LEFT_MOTOR 2
 #define RIGHT_MOTOR 1
@@ -20,8 +20,8 @@ union shortArray {
 	uint16_t num;
 } buttonMap;
 
-AF_DCMotor motorLeft(LEFT_MOTOR);
-AF_DCMotor motorRight(RIGHT_MOTOR);
+MS_DCMotor motorLeft(LEFT_MOTOR);
+MS_DCMotor motorRight(RIGHT_MOTOR);
 
 void setup() {
 	Serial.begin(9600);
@@ -31,7 +31,11 @@ void setup() {
 	motorRight.run(RELEASE);
 }
 
-void setMotor(AF_DCMotor* motor, uint8_t speed, bool reverse) {
+void setMotor(MS_DCMotor* motor, uint8_t speed) {
+	setMotor(motor, speed, false);
+}
+
+void setMotor(MS_DCMotor* motor, uint8_t speed, bool reverse) {
 	if (speed > 0) {
 		if (!reverse)
 			motor->run(FORWARD);
@@ -52,10 +56,47 @@ bool testFlag(uint32_t test, uint16_t flag) {
 	return false;
 }
 
+double speed, rotation, test, maxSpeed, leftSpeed, rightSpeed;
+
 void runInput() {
-	setMotor(&motorLeft, (uint8_t)round(255 * leftY.num), leftY.num < 0);
-	setMotor(&motorRight, (uint8_t)round(255 * rightY.num), leftY.num < 0);
-	digitalWrite(LED_BUILTIN, HIGH);
+	if (!testFlag(buttonMap.num, 4096)) {
+		speed = rightTrigger.num - leftTrigger.num;
+		rotation = leftX.num;
+		speed = (speed * speed) * (speed > 0 ? 1 : -1);
+		rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
+
+		test = max(abs(speed), abs(rotation));
+		maxSpeed = (test * test) * (test > 0 ? 1 : -1);
+
+		if (speed >= 0) {
+			if (rotation >= 0) {
+				leftSpeed = maxSpeed;
+				rightSpeed = speed - rotation;
+			}
+			else {
+				leftSpeed = speed + rotation;
+				rightSpeed = maxSpeed;
+			}
+		}
+		else {
+			if (rotation >= 0) {
+				leftSpeed = speed + rotation;
+				rightSpeed = maxSpeed;
+			}
+			else {
+				leftSpeed = maxSpeed;
+				rightSpeed = speed - rotation;
+			}
+		}
+
+		setMotor(&motorLeft, (uint8_t)round(abs(leftSpeed) * 255), leftSpeed < 0);
+		setMotor(&motorRight, (uint8_t)round(abs(rightSpeed) * 255), rightSpeed < 0);
+		digitalWrite(LED_BUILTIN, HIGH);
+	}
+	else {
+		setMotor(&motorLeft, 0);
+		setMotor(&motorRight, 0);
+	}
 }
 
 void halt() {
