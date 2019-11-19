@@ -3,8 +3,27 @@
 #define LEFT_MOTOR 2
 #define RIGHT_MOTOR 1
 
+#define BAUD_RATE 115200
+
 #define SERIAL_TIMEOUT 100
 #define SAFETY_TIMEOUT 500
+
+#define MAX_SPEED 255
+
+#define BUTTON_DPAD_UP 1
+#define BUTTON_DPAD_DOWN 2
+#define BUTTON_DPAD_LEFT 4
+#define BUTTON_DPAD_RIGHT 8
+#define BUTTON_START 16
+#define BUTTON_BACK 32
+#define BUTTON_LEFT_STICK 64
+#define BUTTON_RIGHT_STICK 128
+#define BUTTON_LEFT_BUMPER 256
+#define BUTTON_RIGHT_BUMPER 512
+#define BUTTON_A 4096
+#define BUTTON_B 8192
+#define BUTTON_X 16384
+#define BUTTON_Y 32768
 
 union doubleArray {
 	byte array[4];
@@ -24,7 +43,7 @@ MS_DCMotor motorLeft(LEFT_MOTOR);
 MS_DCMotor motorRight(RIGHT_MOTOR);
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(BAUD_RATE);
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, LOW);
 	motorLeft.run(RELEASE);
@@ -59,7 +78,7 @@ bool testFlag(uint32_t test, uint16_t flag) {
 double speed, rotation, test, maxSpeed, leftSpeed, rightSpeed;
 
 void runInput() {
-	if (!testFlag(buttonMap.num, 4096)) {
+	if (!testFlag(buttonMap.num, BUTTON_A)) {
 		speed = rightTrigger.num - leftTrigger.num;
 		rotation = leftX.num;
 		speed = (speed * speed) * (speed > 0 ? 1 : -1);
@@ -89,8 +108,8 @@ void runInput() {
 			}
 		}
 
-		setMotor(&motorLeft, (uint8_t)round(abs(leftSpeed) * 255), leftSpeed < 0);
-		setMotor(&motorRight, (uint8_t)round(abs(rightSpeed) * 255), rightSpeed < 0);
+		setMotor(&motorLeft, (uint8_t)round(abs(leftSpeed) * MAX_SPEED), leftSpeed < 0);
+		setMotor(&motorRight, (uint8_t)round(abs(rightSpeed) * MAX_SPEED), rightSpeed < 0);
 		digitalWrite(LED_BUILTIN, HIGH);
 	}
 	else {
@@ -111,8 +130,7 @@ byte last;
 uint16_t charsReceived;
 bool receiving = false;
 
-unsigned long lastRec;
-unsigned long startRec;
+unsigned long lastRec, startRec;
 
 void loop() {
 	if (Serial.available() > 0) {
