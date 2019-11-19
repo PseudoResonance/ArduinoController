@@ -8,7 +8,7 @@
 #define SERIAL_TIMEOUT 100
 #define SAFETY_TIMEOUT 500
 
-#define MAX_SPEED 255
+#define MAX_SPEED 128
 
 #define BUTTON_DPAD_UP 1
 #define BUTTON_DPAD_DOWN 2
@@ -48,10 +48,6 @@ void setup() {
 	digitalWrite(LED_BUILTIN, LOW);
 	motorLeft.run(RELEASE);
 	motorRight.run(RELEASE);
-}
-
-void setMotor(MS_DCMotor* motor, uint8_t speed) {
-	setMotor(motor, speed, false);
 }
 
 void setMotor(MS_DCMotor* motor, uint8_t speed, bool reverse) {
@@ -100,10 +96,10 @@ void runInput() {
 		else {
 			if (rotation >= 0) {
 				leftSpeed = speed + rotation;
-				rightSpeed = maxSpeed;
+				rightSpeed = -maxSpeed;
 			}
 			else {
-				leftSpeed = maxSpeed;
+				leftSpeed = -maxSpeed;
 				rightSpeed = speed - rotation;
 			}
 		}
@@ -113,8 +109,8 @@ void runInput() {
 		digitalWrite(LED_BUILTIN, HIGH);
 	}
 	else {
-		setMotor(&motorLeft, 0);
-		setMotor(&motorRight, 0);
+		setMotor(&motorLeft, 0, false);
+		setMotor(&motorRight, 0, false);
 	}
 }
 
