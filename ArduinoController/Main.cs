@@ -14,7 +14,7 @@ namespace ArduinoController
     {
         public static short deadzoneRadius = 3500;
         public static short updateDelay = 20;
-        public static int baudRate = 9600;
+        public static int baudRate = 115200;
 
         public static String joystickName = "";
         public static Controller joystick = null;
@@ -358,7 +358,10 @@ namespace ArduinoController
                     if (settings.Length >= 3)
                         updateDelay = short.Parse(settings[2]);
                     if (settings.Length >= 4)
+                    {
                         baudRate = int.Parse(settings[3]);
+                        MainWindow.instance.BaudRate.Text = baudRate.ToString();
+                    }
                 }
             }
         }
