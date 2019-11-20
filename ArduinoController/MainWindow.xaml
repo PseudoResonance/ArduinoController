@@ -28,6 +28,7 @@
             <Label x:Name="SelectedControllerLabel" Content="Selected Controller" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center"/>
             <Label x:Name="DeadzoneRadiusLabel" Content="Deadzone Radius" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Center"/>
             <Label x:Name="SelectedSerialLabel" Content="Selected Serial" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center"/>
+            <Rectangle x:Name="SerialStatus" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="2" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>
             <Label x:Name="UpdateFrequencyLabel" Content="Update Frequency" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
             <Label x:Name="BaudRateLabel" Content="Baud Rate" Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center"/>
             <Label x:Name="DebugOutputLabel" Visibility="Hidden" Content="Debug Output" Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center"/>

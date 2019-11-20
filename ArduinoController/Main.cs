@@ -7,6 +7,7 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading;
+using System.Windows.Media;
 
 namespace ArduinoController
 {
@@ -21,7 +22,15 @@ namespace ArduinoController
 
         public static String serialName = "";
         public static SerialPort serialPort = null;
-        private static Boolean isSerialReady = false;
+        private static Boolean _isSerialReady = false;
+        private static Boolean IsSerialReady { get { return _isSerialReady; } set
+            {
+                MainWindow.instance.Dispatcher.Invoke(() =>
+                {
+                    MainWindow.instance.SerialStatus.Fill = new SolidColorBrush(value ? Color.FromRgb(0, 255, 0) : Color.FromRgb(255, 0, 0));
+                });
+            }
+        }
 
         private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -73,7 +82,7 @@ namespace ArduinoController
             catch (Exception) { }
             try
             {
-                if (serialPort != null && serialPort.IsOpen && isSerialReady)
+                if (serialPort != null && serialPort.IsOpen && IsSerialReady)
                 {
                     byte[] tempArray = BitConverter.GetBytes(CalculateDeadzone(leftX));
                     if (!BitConverter.IsLittleEndian)
@@ -127,9 +136,9 @@ namespace ArduinoController
                     MainWindow.testPortThread.Start();
                 }
             }
-            catch (IOException)
+            catch (Exception ex) when (ex is IOException || ex is TimeoutException)
             {
-                isSerialReady = false;
+                IsSerialReady = false;
                 if (MainWindow.testPortThread == null)
                 {
                     MainWindow.testPortThread = new Thread(() =>
@@ -147,7 +156,7 @@ namespace ArduinoController
             serialPort.DiscardInBuffer();
             serialPort.DiscardOutBuffer();
             serialPort.Close();
-            isSerialReady = false;
+            IsSerialReady = false;
         }
 
         public static bool SetupPort()
@@ -166,14 +175,14 @@ namespace ArduinoController
                     serialPort.ReadTimeout = 1000;
                     serialPort.WriteTimeout = 1000;
                     serialPort.Open();
-                    isSerialReady = true;
+                    IsSerialReady = true;
                     Console.WriteLine("Port open!");
                     return true;
                 }
                 catch (Exception)
                 {
                     Console.WriteLine("Port failed to open!");
-                    isSerialReady = false;
+                    IsSerialReady = false;
                     return false;
                 }
             }
@@ -182,7 +191,7 @@ namespace ArduinoController
 
         public static void TestPort()
         {
-            while (!MainWindow.shutdown && !isSerialReady)
+            while (!MainWindow.shutdown && !IsSerialReady)
             {
                 if (SetupPort())
                     break;
