@@ -27,6 +27,7 @@ namespace ArduinoController
             {
                 MainWindow.instance.Dispatcher.Invoke(() =>
                 {
+                    _isSerialReady = value;
                     MainWindow.instance.SerialStatus.Fill = new SolidColorBrush(value ? Color.FromRgb(0, 255, 0) : Color.FromRgb(255, 0, 0));
                 });
             }

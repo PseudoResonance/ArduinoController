@@ -94,57 +94,37 @@ namespace ArduinoController
             {
                 String name = Serial.SelectedItem.ToString();
                 Main.serialName = name.Split(' ')[0];
-                new Thread(() =>
-                {
-                    Thread.CurrentThread.IsBackground = true;
-                    Main.SetupPort();
-                }).Start();
+                Main.SetupPort();
             }
             else
             {
-                new Thread(() =>
-                {
-                    Thread.CurrentThread.IsBackground = true;
-                    Main.CloseSerial();
-                    Main.serialPort = null;
-                }).Start();
+                Main.CloseSerial();
+                Main.serialPort = null;
             }
         }
 
         private void Baud_FocusLost(object sender, RoutedEventArgs e)
         {
             String text = BaudRate.Text;
-            new Thread(() =>
+            if (text.Length > 0)
             {
-                Thread.CurrentThread.IsBackground = true;
-                if (text.Length > 0)
+                try
                 {
-                    try
-                    {
-                        Main.baudRate = int.Parse(text);
-                        Main.SetupPort();
-                    }
-                    catch (Exception) { }
+                    Main.baudRate = int.Parse(text);
+                    Main.SetupPort();
                 }
-            }).Start();
+                catch (Exception) { }
+            }
         }
 
         private void Serial_Refresh(object sender, RoutedEventArgs e)
         {
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Main.PollSerial();
-            }).Start();
+            Main.PollSerial();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Main.SaveSettings();
-            }).Start();
+            Main.SaveSettings();
         }
 
         private void ShowDebug_Click(object sender, RoutedEventArgs e)
