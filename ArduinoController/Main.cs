@@ -153,11 +153,15 @@ namespace ArduinoController
 
         public static void CloseSerial()
         {
-            Console.WriteLine("Closing current port");
-            serialPort.DiscardInBuffer();
-            serialPort.DiscardOutBuffer();
-            serialPort.Close();
-            IsSerialReady = false;
+            try
+            {
+                Console.WriteLine("Closing current port");
+                serialPort.DiscardInBuffer();
+                serialPort.DiscardOutBuffer();
+                serialPort.Close();
+                IsSerialReady = false;
+            }
+            catch (Exception) { }
         }
 
         public static bool SetupPort()
@@ -175,6 +179,10 @@ namespace ArduinoController
                     serialPort.BaudRate = baudRate;
                     serialPort.ReadTimeout = 1000;
                     serialPort.WriteTimeout = 1000;
+                    serialPort.StopBits = StopBits.One;
+                    serialPort.Parity = Parity.None;
+                    serialPort.DtrEnable = true;
+                    serialPort.RtsEnable = true;
                     serialPort.Open();
                     IsSerialReady = true;
                     Console.WriteLine("Port open!");
