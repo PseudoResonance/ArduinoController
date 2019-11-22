@@ -8,6 +8,7 @@ using System.Management;
 using System.Text;
 using System.Threading;
 using System.Windows.Media;
+using static ArduinoController.MainWindow;
 
 namespace ArduinoController
 {
@@ -151,24 +152,44 @@ namespace ArduinoController
             }
         }
 
-        public static void CloseSerial()
+        public static void CloseSerial(Object state)
+        {
+            ClosePort();
+        }
+
+        private static void ClosePort()
         {
             try
             {
                 Console.WriteLine("Closing current port");
-                serialPort.DiscardInBuffer();
-                serialPort.DiscardOutBuffer();
-                serialPort.Close();
+                if (serialPort.IsOpen)
+                {
+                    serialPort.DiscardInBuffer();
+                    serialPort.DiscardOutBuffer();
+                    serialPort.Close();
+                }
                 IsSerialReady = false;
+                serialPort = null;
             }
-            catch (Exception) { }
+            catch (IOException)
+            {
+                Console.WriteLine("Error when current port");
+            }
         }
 
-        public static bool SetupPort()
+        public static void InitializeSerial(Object state)
+        {
+            if (MainWindow.testPortThread == null || !MainWindow.testPortThread.IsAlive)
+            {
+                SetupPort();
+            }
+        }
+
+        private static bool SetupPort()
         {
             if (serialPort != null && serialPort.IsOpen)
             {
-                CloseSerial();
+                ClosePort();
             }
             if (serialName.Length > 0)
             {
@@ -305,6 +326,11 @@ namespace ArduinoController
             }
         }
 
+        public static void PollSerial(Object state)
+        {
+            PollSerial();
+        }
+
         public static void PollSerial()
         {
             Boolean updated = false;
@@ -357,7 +383,7 @@ namespace ArduinoController
         {
             Console.WriteLine("Saving settings file...");
             string file = @"settings.dat";
-            File.WriteAllText(file, deadzoneRadius.ToString() + "\n" + serialName + "\n" + updateDelay + "\n" + baudRate);
+            File.WriteAllText(file, deadzoneRadius.ToString() + "\n" + serialName + "\n" + updateDelay + "\n" + baudRate + "\n" + MainWindow.currentTheme.ToString());
         }
 
         public static void ReadSettings()
@@ -379,6 +405,14 @@ namespace ArduinoController
                     {
                         baudRate = int.Parse(settings[3]);
                         MainWindow.instance.BaudRate.Text = baudRate.ToString();
+                    }
+                    if (settings.Length >= 5)
+                    {
+                        try
+                        {
+                            Enum.TryParse(settings[4], out WindowsTheme theme);
+                            MainWindow.instance.SetTheme(theme);
+                        } catch (Exception) { }
                     }
                 }
             }

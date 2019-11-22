@@ -1,7 +1,11 @@
-﻿using SharpDX.XInput;
+﻿using Microsoft.Win32;
+using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using System.Management;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,6 +20,12 @@ namespace ArduinoController
     public partial class MainWindow : Window
     {
         public static MainWindow instance;
+
+        public static WindowsTheme currentTheme = WindowsTheme.Light;
+
+        private const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
+
+        private const string RegistryValueName = "AppsUseLightTheme";
 
         public List<String> joystickList = new List<String>();
 
@@ -38,18 +48,25 @@ namespace ArduinoController
         {
             instance = this;
             InitializeComponent();
+            WatchTheme();
             Main.ReadSettings();
             var data = new Data();
             DataContext = data;
             instance.Controller.ItemsSource = joystickList;
             instance.Serial.ItemsSource = serialList;
-            Main.PollSerial();
+            ThreadPool.SetMaxThreads(1, 0);
+            ThreadPool.QueueUserWorkItem(new WaitCallback(Initialize));
+        }
+
+        private void Initialize(Object state)
+        {
             pollThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
                 while (!shutdown)
                 {
                     Main.PollJoysticks();
+                    Main.PollSerial();
                     Thread.Sleep(5000);
                 }
             });
@@ -94,12 +111,11 @@ namespace ArduinoController
             {
                 String name = Serial.SelectedItem.ToString();
                 Main.serialName = name.Split(' ')[0];
-                Main.SetupPort();
+                ThreadPool.QueueUserWorkItem(new WaitCallback(Main.InitializeSerial));
             }
             else
             {
-                Main.CloseSerial();
-                Main.serialPort = null;
+                ThreadPool.QueueUserWorkItem(new WaitCallback(Main.CloseSerial));
             }
         }
 
@@ -110,16 +126,15 @@ namespace ArduinoController
             {
                 try
                 {
-                    Main.baudRate = int.Parse(text);
-                    Main.SetupPort();
+                    int newBaudRate = int.Parse(text);
+                    if (newBaudRate != Main.baudRate)
+                    {
+                        Main.baudRate = newBaudRate;
+                        ThreadPool.QueueUserWorkItem(new WaitCallback(Main.InitializeSerial));
+                    }
                 }
                 catch (Exception) { }
             }
-        }
-
-        private void Serial_Refresh(object sender, RoutedEventArgs e)
-        {
-            Main.PollSerial();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -132,6 +147,82 @@ namespace ArduinoController
             showDebug = ShowDebug.IsChecked;
             DebugOutput.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
             DebugOutputLabel.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void LightTheme_Click(object sender, RoutedEventArgs e)
+        {
+            SetTheme(WindowsTheme.Light);
+        }
+
+        private void DarkTheme_Click(object sender, RoutedEventArgs e)
+        {
+            SetTheme(WindowsTheme.Dark);
+        }
+
+        public void SetTheme(WindowsTheme theme)
+        {
+            if (theme == WindowsTheme.Light)
+            {
+                this.DarkTheme.IsChecked = false;
+                this.LightTheme.IsChecked = true;
+            } else if (theme == WindowsTheme.Dark)
+            {
+                this.DarkTheme.IsChecked = true;
+                this.LightTheme.IsChecked = false;
+            }
+            currentTheme = theme;
+            Console.WriteLine("Using theme: " + theme);
+            Application.Current.Resources.MergedDictionaries[0].Source = new Uri($"/Themes/{theme}.xaml", UriKind.Relative);
+        }
+
+        public void WatchTheme()
+        {
+            var currentUser = WindowsIdentity.GetCurrent();
+            string query = string.Format(
+                CultureInfo.InvariantCulture,
+                @"SELECT * FROM RegistryValueChangeEvent WHERE Hive = 'HKEY_USERS' AND KeyPath = '{0}\\{1}' AND ValueName = '{2}'",
+                currentUser.User.Value,
+                RegistryKeyPath.Replace(@"\", @"\\"),
+                RegistryValueName);
+
+            try
+            {
+                var watcher = new ManagementEventWatcher(query);
+                watcher.EventArrived += (sender, args) =>
+                {
+                    SetTheme(GetWindowsTheme());
+                };
+
+                // Start listening for events
+                watcher.Start();
+            }
+            catch (Exception)
+            {
+                // This can fail on Windows 7
+            }
+            SetTheme(GetWindowsTheme());
+        }
+
+        private static WindowsTheme GetWindowsTheme()
+        {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(RegistryKeyPath))
+            {
+                object registryValueObject = key?.GetValue(RegistryValueName);
+                if (registryValueObject == null)
+                {
+                    return WindowsTheme.Light;
+                }
+
+                int registryValue = (int)registryValueObject;
+
+                return registryValue > 0 ? WindowsTheme.Light : WindowsTheme.Dark;
+            }
+        }
+
+        public enum WindowsTheme
+        {
+            Light,
+            Dark
         }
     }
 }

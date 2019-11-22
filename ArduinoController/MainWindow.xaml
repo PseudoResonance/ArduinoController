@@ -9,6 +9,11 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Settings">
                 <MenuItem x:Name="Save" Header="_Save" Click="Save_Click"/>
+                <Separator />
+                <MenuItem Header="_Theme">
+                    <MenuItem x:Name="LightTheme" Header="_Light Theme" IsCheckable="True" Click="LightTheme_Click"/>
+                    <MenuItem x:Name="DarkTheme" Header="_Dark Theme" IsCheckable="True" Click="DarkTheme_Click"/>
+                </MenuItem>
                 <MenuItem x:Name="ShowDebug" Header="_Show Debug" IsCheckable="True" Click="ShowDebug_Click"/>
             </MenuItem>
         </Menu>
@@ -18,30 +23,29 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <Label x:Name="SelectedControllerLabel" Content="Selected Controller" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center"/>
             <Label x:Name="DeadzoneRadiusLabel" Content="Deadzone Radius" Grid.Column="0" Grid.Row="1" VerticalContentAlignment="Center"/>
             <Label x:Name="SelectedSerialLabel" Content="Selected Serial" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center"/>
-            <Rectangle x:Name="SerialStatus" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="2" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>
+            <Rectangle x:Name="SerialStatus" Margin="0,0,5,0" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="2" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>
             <Label x:Name="UpdateFrequencyLabel" Content="Update Frequency" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
             <Label x:Name="BaudRateLabel" Content="Baud Rate" Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center"/>
             <Label x:Name="DebugOutputLabel" Visibility="Hidden" Content="Debug Output" Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center"/>
 
-            <ComboBox x:Name="Controller" Grid.Column="1" Grid.Row="0" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Controller_SelectionChanged"/>
-            <Slider x:Name="DeadzoneSlider" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="0" Maximum="32767" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding DeadzoneCount}"/>
-            <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
-            <Button x:Name="RefreshSerial" Content="Refreh" Grid.Column="1" Grid.Row="2" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Left" Width="60" Click="Serial_Refresh"/>
-            <ComboBox x:Name="Serial" Grid.Column="1" Grid.Row="2" VerticalContentAlignment="Center" Margin="75,5,5,5" SelectionChanged="Serial_SelectionChanged"/>
-            <Slider x:Name="UpdateSlider" Grid.Column="1" Grid.Row="3" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="5" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding UpdateCount}"/>
-            <TextBox x:Name="UpdateText" Grid.Column="1" Grid.Row="3" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
-            <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="4" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="9600" LostFocus="Baud_FocusLost"/>
-            <TextBox x:Name="DebugOutput" Visibility="Hidden" Grid.Column="1" Grid.Row="5" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Focusable="False"/>
+            <ComboBox x:Name="Controller" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Controller_SelectionChanged"/>
+            <Slider x:Name="DeadzoneSlider" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="0" Maximum="32767" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding DeadzoneCount}"/>
+            <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
+            <ComboBox x:Name="Serial" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Serial_SelectionChanged"/>
+            <Slider x:Name="UpdateSlider" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="5" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding UpdateCount}"/>
+            <TextBox x:Name="UpdateText" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="115200" LostFocus="Baud_FocusLost"/>
+            <TextBox x:Name="DebugOutput" Visibility="Hidden" Grid.Column="1" Grid.Row="5" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Focusable="False"/>
         </Grid>
     </DockPanel>
 </Window>
