@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArduinoController
 {
-    public class Data : INotifyPropertyChanged
+    public class WindowData : INotifyPropertyChanged
     {
         private int _deadzoneCount = Main.deadzoneRadius;
         public int DeadzoneCount

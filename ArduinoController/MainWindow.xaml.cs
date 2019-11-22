@@ -50,7 +50,7 @@ namespace ArduinoController
             InitializeComponent();
             WatchTheme();
             Main.ReadSettings();
-            var data = new Data();
+            var data = new WindowData();
             DataContext = data;
             instance.Controller.ItemsSource = joystickList;
             instance.Serial.ItemsSource = serialList;

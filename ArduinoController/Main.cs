@@ -81,7 +81,7 @@ namespace ArduinoController
                     buttons = state.Gamepad.Buttons;
                 }
             }
-            catch (Exception) { }
+            catch (IOException) { }
             try
             {
                 if (serialPort != null && serialPort.IsOpen && IsSerialReady)
@@ -209,7 +209,7 @@ namespace ArduinoController
                     Console.WriteLine("Port open!");
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex) when (ex is IOException || ex is TimeoutException)
                 {
                     Console.WriteLine("Port failed to open!");
                     IsSerialReady = false;
