@@ -1,4 +1,5 @@
-﻿using SharpDX.XInput;
+﻿using SharpDX;
+using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +82,7 @@ namespace ArduinoController
                     buttons = state.Gamepad.Buttons;
                 }
             }
-            catch (IOException) { }
+            catch (SharpDXException) { }
             try
             {
                 if (serialPort != null && serialPort.IsOpen && IsSerialReady)
@@ -209,7 +210,7 @@ namespace ArduinoController
                     Console.WriteLine("Port open!");
                     return true;
                 }
-                catch (Exception ex) when (ex is IOException || ex is TimeoutException)
+                catch (Exception ex) when (ex is IOException || ex is TimeoutException || ex is UnauthorizedAccessException)
                 {
                     Console.WriteLine("Port failed to open!");
                     IsSerialReady = false;
