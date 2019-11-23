@@ -6,9 +6,11 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Management;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ArduinoController
 {
@@ -20,6 +22,8 @@ namespace ArduinoController
     public partial class MainWindow : Window
     {
         public static MainWindow instance;
+
+        private static readonly Regex nonNumericRegex = new Regex("[^0-9]+");
 
         public static WindowsTheme currentTheme = WindowsTheme.Light;
 
@@ -157,6 +161,43 @@ namespace ArduinoController
         private void DarkTheme_Click(object sender, RoutedEventArgs e)
         {
             SetTheme(WindowsTheme.Dark);
+        }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Grid.Focus();
+            Console.WriteLine("Focus");
+        }
+
+        private void TestNumericText(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = nonNumericRegex.IsMatch(e.Text);
+        }
+
+        private void TestNumericPaste(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(String)))
+            {
+                String text = (String)e.DataObject.GetData(typeof(String));
+                if (nonNumericRegex.IsMatch(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+
         }
 
         public void SetTheme(WindowsTheme theme)

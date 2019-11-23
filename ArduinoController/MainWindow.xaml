@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Arduino Controller" Closing="Window_Closing" MinWidth="450" MinHeight="250" Width="700" WindowStartupLocation="CenterScreen" SizeToContent="Height">
+        Title="Arduino Controller" Closing="Window_Closing" MinWidth="450" MinHeight="250" Width="700" WindowStartupLocation="CenterScreen" SizeToContent="Height"
+        PreviewKeyUp="Window_KeyUp" PreviewKeyDown="Window_KeyDown">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Settings">
@@ -17,7 +18,7 @@
                 <MenuItem x:Name="ShowDebug" Header="_Show Debug" IsCheckable="True" Click="ShowDebug_Click"/>
             </MenuItem>
         </Menu>
-        <Grid>
+        <Grid x:Name="Grid" Focusable="True" MouseDown="Grid_MouseDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
@@ -40,11 +41,11 @@
 
             <ComboBox x:Name="Controller" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Controller_SelectionChanged"/>
             <Slider x:Name="DeadzoneSlider" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="0" Maximum="32767" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding DeadzoneCount}"/>
-            <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
             <ComboBox x:Name="Serial" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Serial_SelectionChanged"/>
             <Slider x:Name="UpdateSlider" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" Minimum="5" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding UpdateCount}"/>
-            <TextBox x:Name="UpdateText" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
-            <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="115200" LostFocus="Baud_FocusLost"/>
+            <TextBox x:Name="UpdateText" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText" Text="{Binding UpdateCount, UpdateSourceTrigger=LostFocus}"/>
+            <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="115200" LostFocus="Baud_FocusLost" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText"/>
             <TextBox x:Name="DebugOutput" Visibility="Hidden" Grid.Column="1" Grid.Row="5" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Focusable="False"/>
         </Grid>
     </DockPanel>
