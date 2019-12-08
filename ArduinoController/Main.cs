@@ -35,7 +35,7 @@ namespace ArduinoController
             }
         }
 
-        private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         private static float CalculateDeadzone(short n)
         {
@@ -61,24 +61,24 @@ namespace ArduinoController
 
         public static void UpdateJoystick()
         {
-            short leftX = 0;
-            short leftY = 0;
-            short rightX = 0;
-            short rightY = 0;
-            byte leftTrigger = 0;
-            byte rightTrigger = 0;
+            double leftX = 0;
+            double leftY = 0;
+            double rightX = 0;
+            double rightY = 0;
+            double leftTrigger = 0;
+            double rightTrigger = 0;
             GamepadButtonFlags buttons = 0;
             try
             {
                 if (joystick != null)
                 {
                     var state = joystick.GetState();
-                    leftX = state.Gamepad.LeftThumbX;
-                    leftY = state.Gamepad.LeftThumbY;
-                    rightX = state.Gamepad.RightThumbX;
-                    rightY = state.Gamepad.RightThumbY;
-                    leftTrigger = state.Gamepad.LeftTrigger;
-                    rightTrigger = state.Gamepad.RightTrigger;
+                    leftX = CalculateDeadzone(state.Gamepad.LeftThumbX);
+                    leftY = CalculateDeadzone(state.Gamepad.LeftThumbY);
+                    rightX = CalculateDeadzone(state.Gamepad.RightThumbX);
+                    rightY = CalculateDeadzone(state.Gamepad.RightThumbY);
+                    leftTrigger = CalculatePercentage(state.Gamepad.LeftTrigger);
+                    rightTrigger = CalculatePercentage(state.Gamepad.RightTrigger);
                     buttons = state.Gamepad.Buttons;
                 }
             }
@@ -87,34 +87,55 @@ namespace ArduinoController
             {
                 if (serialPort != null && serialPort.IsOpen && IsSerialReady)
                 {
-                    byte[] tempArray = BitConverter.GetBytes(CalculateDeadzone(leftX));
+                    double speed = rightTrigger - leftTrigger;
+                    double rotation = leftX;
+                    speed = (speed * speed) * (speed > 0 ? 1 : -1);
+                    rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
+
+                    double test = Math.Max(Math.Abs(speed), Math.Abs(rotation));
+                    double maxSpeed = (test * test) * (test > 0 ? 1 : -1);
+
+                    double motor1 = 0, motor2 = 0, motor3 = 0, motor4 = 0;
+                    if (speed >= 0)
+                    {
+                        if (rotation >= 0)
+                        {
+                            motor2 = maxSpeed;
+                            motor1 = speed - rotation;
+                        } else
+                        {
+                            motor2 = speed + rotation;
+                            motor1 = maxSpeed;
+                        }
+                    } else
+                    {
+                        if (rotation >= 0)
+                        {
+                            motor2 = speed + rotation;
+                            motor1 = -maxSpeed;
+                        } else
+                        {
+                            motor2 = -maxSpeed;
+                            motor1 = speed - rotation;
+                        }
+                    }
+
+                    byte[] tempArray = BitConverter.GetBytes(motor1);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 2, 4);
-                    tempArray = BitConverter.GetBytes(CalculateDeadzone(leftY));
+                    tempArray = BitConverter.GetBytes(motor2);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 6, 4);
-                    tempArray = BitConverter.GetBytes(CalculateDeadzone(rightX));
+                    tempArray = BitConverter.GetBytes(motor3);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 10, 4);
-                    tempArray = BitConverter.GetBytes(CalculateDeadzone(rightY));
+                    tempArray = BitConverter.GetBytes(motor4);
                     if (!BitConverter.IsLittleEndian)
                         Array.Reverse(tempArray);
                     Array.Copy(tempArray, 0, buffer, 14, 4);
-                    tempArray = BitConverter.GetBytes(CalculatePercentage(leftTrigger));
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 18, 4);
-                    tempArray = BitConverter.GetBytes(CalculatePercentage(rightTrigger));
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 22, 4);
-                    tempArray = BitConverter.GetBytes((ushort)buttons);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 26, 2);
 
                     serialPort.Write(buffer, 0, buffer.Length);
                     if (MainWindow.showDebug)

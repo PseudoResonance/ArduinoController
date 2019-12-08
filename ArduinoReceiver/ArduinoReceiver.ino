@@ -1,8 +1,5 @@
 #include <MSMotorShield.h>
 
-#define LEFT_MOTOR 2
-#define RIGHT_MOTOR 1
-
 #define BAUD_RATE 115200
 
 #define SERIAL_TIMEOUT 50
@@ -10,44 +7,27 @@
 
 #define MAX_SPEED 200
 
-#define BUTTON_DPAD_UP 1
-#define BUTTON_DPAD_DOWN 2
-#define BUTTON_DPAD_LEFT 4
-#define BUTTON_DPAD_RIGHT 8
-#define BUTTON_START 16
-#define BUTTON_BACK 32
-#define BUTTON_LEFT_STICK 64
-#define BUTTON_RIGHT_STICK 128
-#define BUTTON_LEFT_BUMPER 256
-#define BUTTON_RIGHT_BUMPER 512
-#define BUTTON_A 4096
-#define BUTTON_B 8192
-#define BUTTON_X 16384
-#define BUTTON_Y 32768
-
 union doubleArray {
 	byte array[4];
 	double num;
-} leftX;
-union doubleArray leftY;
-union doubleArray rightX;
-union doubleArray rightY;
-union doubleArray leftTrigger;
-union doubleArray rightTrigger;
-union shortArray {
-	byte array[2];
-	uint16_t num;
-} buttonMap;
+} motor1Array;
+union doubleArray motor2Array;
+union doubleArray motor3Array;
+union doubleArray motor4Array;
 
-MS_DCMotor motorLeft(LEFT_MOTOR);
-MS_DCMotor motorRight(RIGHT_MOTOR);
+MS_DCMotor motor1(1);
+MS_DCMotor motor2(2);
+MS_DCMotor motor3(3);
+MS_DCMotor motor4(4);
 
 void setup() {
 	Serial.begin(BAUD_RATE);
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, LOW);
-	motorLeft.run(RELEASE);
-	motorRight.run(RELEASE);
+	motor1.run(RELEASE);
+	motor2.run(RELEASE);
+	motor3.run(RELEASE);
+	motor4.run(RELEASE);
 }
 
 void setMotor(MS_DCMotor* motor, uint8_t speed, bool reverse) {
@@ -64,61 +44,23 @@ void setMotor(MS_DCMotor* motor, uint8_t speed, bool reverse) {
 	}
 }
 
-bool testFlag(uint32_t test, uint16_t flag) {
-	if ((test & flag) == flag) {
-		return true;
-	}
-	return false;
-}
-
-double speed, rotation, test, maxSpeed, leftSpeed, rightSpeed;
-
 void runInput() {
-	if (!testFlag(buttonMap.num, BUTTON_A)) {
-		speed = rightTrigger.num - leftTrigger.num;
-		rotation = leftX.num;
-		speed = (speed * speed) * (speed > 0 ? 1 : -1);
-		rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
-
-		test = max(abs(speed), abs(rotation));
-		maxSpeed = (test * test) * (test > 0 ? 1 : -1);
-
-		if (speed >= 0) {
-			if (rotation >= 0) {
-				leftSpeed = maxSpeed;
-				rightSpeed = speed - rotation;
-			}
-			else {
-				leftSpeed = speed + rotation;
-				rightSpeed = maxSpeed;
-			}
-		}
-		else {
-			if (rotation >= 0) {
-				leftSpeed = speed + rotation;
-				rightSpeed = -maxSpeed;
-			}
-			else {
-				leftSpeed = -maxSpeed;
-				rightSpeed = speed - rotation;
-			}
-		}
-
-		setMotor(&motorLeft, (uint8_t)round(abs(leftSpeed) * MAX_SPEED), leftSpeed < 0);
-		setMotor(&motorRight, (uint8_t)round(abs(rightSpeed) * MAX_SPEED), rightSpeed < 0);
-		digitalWrite(LED_BUILTIN, HIGH);
-	}
-	else {
-		setMotor(&motorLeft, 0, false);
-		setMotor(&motorRight, 0, false);
-	}
+	setMotor(&motor1, (uint8_t)round(abs(motor1Array.num) * MAX_SPEED), motor1Array.num < 0);
+	setMotor(&motor2, (uint8_t)round(abs(motor2Array.num) * MAX_SPEED), motor2Array.num < 0);
+	setMotor(&motor3, (uint8_t)round(abs(motor3Array.num) * MAX_SPEED), motor3Array.num < 0);
+	setMotor(&motor4, (uint8_t)round(abs(motor4Array.num) * MAX_SPEED), motor4Array.num < 0);
+	digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void halt() {
-	motorLeft.setSpeed(0);
-	motorRight.setSpeed(0);
-	motorLeft.run(BRAKE);
-	motorRight.run(BRAKE);
+	motor1.setSpeed(0);
+	motor2.setSpeed(0);
+	motor3.setSpeed(0);
+	motor4.setSpeed(0);
+	motor1.run(BRAKE);
+	motor2.run(BRAKE);
+	motor3.run(BRAKE);
+	motor4.run(BRAKE);
 	digitalWrite(LED_BUILTIN, LOW);
 }
 
@@ -134,25 +76,16 @@ void loop() {
 		if (receiving) {
 			uint8_t i = charsReceived % 4;
 			if (charsReceived < 4) {
-				leftX.array[i] = in;
+				motor1Array.array[i] = in;
 			}
 			else if (charsReceived < 8) {
-				leftY.array[i] = in;
+				motor2Array.array[i] = in;
 			}
 			else if (charsReceived < 12) {
-				rightX.array[i] = in;
+				motor3Array.array[i] = in;
 			}
 			else if (charsReceived < 16) {
-				rightY.array[i] = in;
-			}
-			else if (charsReceived < 20) {
-				leftTrigger.array[i] = in;
-			}
-			else if (charsReceived < 24) {
-				rightTrigger.array[i] = in;
-			}
-			else if (charsReceived < 26) {
-				buttonMap.array[i] = in;
+				motor4Array.array[i] = in;
 			}
 			else {
 				receiving = false;
