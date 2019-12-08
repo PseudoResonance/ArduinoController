@@ -2,6 +2,7 @@
 using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace ArduinoController
     class Main
     {
         public static short deadzoneRadius = 3500;
-        public static short updateDelay = 20;
+        public static byte updateDelay = 20;
         public static int baudRate = 115200;
 
         public static String joystickName = "";
@@ -31,6 +32,19 @@ namespace ArduinoController
                 {
                     _isSerialReady = value;
                     MainWindow.instance.SerialStatus.Fill = new SolidColorBrush(value ? Color.FromRgb(0, 255, 0) : Color.FromRgb(255, 0, 0));
+                });
+            }
+        }
+        private static Boolean _isJavaConnected = false;
+        private static Boolean IsJavaConnected
+        {
+            get { return _isJavaConnected; }
+            set
+            {
+                MainWindow.instance.Dispatcher.Invoke(() =>
+                {
+                    _isJavaConnected = value;
+                    MainWindow.instance.JavaStatus.Fill = new SolidColorBrush(value ? Color.FromRgb(0, 255, 0) : Color.FromRgb(255, 0, 0));
                 });
             }
         }
@@ -266,7 +280,7 @@ namespace ArduinoController
             }
             else
             {
-                if (joystickName.Equals("One"))
+                if (joystickName.Equals("One", StringComparison.InvariantCulture))
                     joystickName = "";
                 if (MainWindow.instance.joystickList.Contains("One"))
                 {
@@ -284,7 +298,7 @@ namespace ArduinoController
             }
             else
             {
-                if (joystickName.Equals("Two"))
+                if (joystickName.Equals("Two", StringComparison.InvariantCulture))
                     joystickName = "";
                 if (MainWindow.instance.joystickList.Contains("Two"))
                 {
@@ -302,7 +316,7 @@ namespace ArduinoController
             }
             else
             {
-                if (joystickName.Equals("Three"))
+                if (joystickName.Equals("Three", StringComparison.InvariantCulture))
                     joystickName = "";
                 if (MainWindow.instance.joystickList.Contains("Three"))
                 {
@@ -320,7 +334,7 @@ namespace ArduinoController
             }
             else
             {
-                if (joystickName.Equals("Four"))
+                if (joystickName.Equals("Four", StringComparison.InvariantCulture))
                     joystickName = "";
                 if (MainWindow.instance.joystickList.Contains("Four"))
                 {
@@ -333,7 +347,7 @@ namespace ArduinoController
                 MainWindow.instance.Dispatcher.Invoke(() =>
                 {
                     MainWindow.instance.Controller.Items.Refresh();
-                    if (joystickName.Equals(""))
+                    if (joystickName.Length == 0)
                     {
                         if (MainWindow.controllerOne.IsConnected)
                             MainWindow.instance.Controller.SelectedItem = "One";
@@ -391,7 +405,7 @@ namespace ArduinoController
                     {
                         foreach (String n in MainWindow.instance.serialList)
                         {
-                            if (n.StartsWith(serialName))
+                            if (n.StartsWith(serialName, StringComparison.InvariantCulture))
                             {
                                 MainWindow.instance.Serial.SelectedItem = n;
                             }
@@ -405,7 +419,7 @@ namespace ArduinoController
         {
             Console.WriteLine("Saving settings file...");
             string file = @"settings.dat";
-            File.WriteAllText(file, deadzoneRadius.ToString() + "\n" + serialName + "\n" + updateDelay + "\n" + baudRate + "\n" + MainWindow.currentTheme.ToString());
+            File.WriteAllText(file, deadzoneRadius + "\n" + serialName + "\n" + updateDelay + "\n" + baudRate + "\n" + MainWindow.currentTheme.ToString() + "\n" + JavaReceiver.ip + "\n" + JavaReceiver.port);
         }
 
         public static void ReadSettings()
@@ -418,23 +432,30 @@ namespace ArduinoController
                 if (settings != null && settings.Length > 0)
                 {
                     if (settings.Length >= 1)
-                        deadzoneRadius = short.Parse(settings[0]);
+                        deadzoneRadius = short.TryParse(settings[0], out short output) ? output : (short) 3500;
                     if (settings.Length >= 2)
                         serialName = settings[1];
                     if (settings.Length >= 3)
-                        updateDelay = short.Parse(settings[2]);
+                        updateDelay = byte.TryParse(settings[2], out byte output) ? output : (byte) 20;
                     if (settings.Length >= 4)
                     {
-                        baudRate = int.Parse(settings[3]);
-                        MainWindow.instance.BaudRate.Text = baudRate.ToString();
+                        baudRate = int.TryParse(settings[3], out int output) ? output : 115200;
+                        MainWindow.instance.BaudRate.Text = baudRate.ToString("D", CultureInfo.InvariantCulture);
                     }
                     if (settings.Length >= 5)
                     {
-                        try
-                        {
-                            Enum.TryParse(settings[4], out WindowsTheme theme);
+                        if (Enum.TryParse(settings[4], out WindowsTheme theme))
                             MainWindow.instance.SetTheme(theme);
-                        } catch (Exception) { }
+                    }
+                    if (settings.Length >= 6)
+                    {
+                        JavaReceiver.ip = settings[5];
+                        MainWindow.instance.JavaIP.Text = settings[5];
+                    }
+                    if (settings.Length >= 7)
+                    {
+                        JavaReceiver.port = int.TryParse(settings[6], out int output) ? output : 2400;
+                        MainWindow.instance.JavaPort.Text = JavaReceiver.port.ToString("D", CultureInfo.InvariantCulture);
                     }
                 }
             }

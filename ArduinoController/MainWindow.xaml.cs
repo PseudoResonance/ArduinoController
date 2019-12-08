@@ -24,6 +24,7 @@ namespace ArduinoController
         public static MainWindow instance;
 
         private static readonly Regex nonNumericRegex = new Regex("[^0-9]+");
+        private static readonly Regex nonDecimalRegex = new Regex("[^0-9.]+");
 
         public static WindowsTheme currentTheme = WindowsTheme.Light;
 
@@ -52,7 +53,7 @@ namespace ArduinoController
         {
             instance = this;
             InitializeComponent();
-            WatchTheme();
+            SetTheme(GetWindowsTheme());
             Main.ReadSettings();
             var data = new WindowData();
             DataContext = data;
@@ -85,6 +86,7 @@ namespace ArduinoController
                 }
             });
             joystickUpdateThread.Start();
+            JavaReceiver.SetupReceiver();
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -98,13 +100,13 @@ namespace ArduinoController
             if (Controller.SelectedItem != null)
             {
                 String name = Controller.SelectedItem.ToString();
-                if (name.Equals("One"))
+                if (name.Equals("One", StringComparison.InvariantCulture))
                     Main.joystick = controllerOne;
-                else if (name.Equals("Two"))
+                else if (name.Equals("Two", StringComparison.InvariantCulture))
                     Main.joystick = controllerTwo;
-                else if (name.Equals("Three"))
+                else if (name.Equals("Three", StringComparison.InvariantCulture))
                     Main.joystick = controllerThree;
-                else if (name.Equals("Four"))
+                else if (name.Equals("Four", StringComparison.InvariantCulture))
                     Main.joystick = controllerFour;
             }
         }
@@ -128,16 +130,33 @@ namespace ArduinoController
             String text = BaudRate.Text;
             if (text.Length > 0)
             {
-                try
-                {
-                    int newBaudRate = int.Parse(text);
-                    if (newBaudRate != Main.baudRate)
+                if (int.TryParse(text, out int output))
+                    if (output != Main.baudRate)
                     {
-                        Main.baudRate = newBaudRate;
+                        Main.baudRate = output;
                         ThreadPool.QueueUserWorkItem(new WaitCallback(Main.InitializeSerial));
                     }
-                }
-                catch (Exception) { }
+            }
+        }
+
+        private void JavaIP_FocusLost(object sender, RoutedEventArgs e)
+        {
+            String text = JavaIP.Text;
+            if (text.Length > 0)
+            {
+                if (text != JavaReceiver.ip)
+                    JavaReceiver.SetSocketIP(text);
+            }
+        }
+
+        private void JavaPort_FocusLost(object sender, RoutedEventArgs e)
+        {
+            String text = JavaPort.Text;
+            if (text.Length > 0)
+            {
+                if (int.TryParse(text, out int output))
+                    if (output != JavaReceiver.port)
+                        JavaReceiver.SetSocketPort(output);
             }
         }
 
@@ -151,6 +170,7 @@ namespace ArduinoController
             showDebug = ShowDebug.IsChecked;
             DebugOutput.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
             DebugOutputLabel.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
+            DebugOutputRow.Height = new GridLength(showDebug ? 40 : 0);
         }
 
         private void LightTheme_Click(object sender, RoutedEventArgs e)
@@ -166,7 +186,6 @@ namespace ArduinoController
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Grid.Focus();
-            Console.WriteLine("Focus");
         }
 
         private void TestNumericText(object sender, TextCompositionEventArgs e)
@@ -180,6 +199,27 @@ namespace ArduinoController
             {
                 String text = (String)e.DataObject.GetData(typeof(String));
                 if (nonNumericRegex.IsMatch(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private void TestDecimalText(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = nonDecimalRegex.IsMatch(e.Text);
+        }
+
+        private void TestDecimalPaste(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(String)))
+            {
+                String text = (String)e.DataObject.GetData(typeof(String));
+                if (nonDecimalRegex.IsMatch(text))
                 {
                     e.CancelCommand();
                 }
@@ -214,34 +254,6 @@ namespace ArduinoController
             currentTheme = theme;
             Console.WriteLine("Using theme: " + theme);
             Application.Current.Resources.MergedDictionaries[0].Source = new Uri($"/Themes/{theme}.xaml", UriKind.Relative);
-        }
-
-        public void WatchTheme()
-        {
-            var currentUser = WindowsIdentity.GetCurrent();
-            string query = string.Format(
-                CultureInfo.InvariantCulture,
-                @"SELECT * FROM RegistryValueChangeEvent WHERE Hive = 'HKEY_USERS' AND KeyPath = '{0}\\{1}' AND ValueName = '{2}'",
-                currentUser.User.Value,
-                RegistryKeyPath.Replace(@"\", @"\\"),
-                RegistryValueName);
-
-            try
-            {
-                var watcher = new ManagementEventWatcher(query);
-                watcher.EventArrived += (sender, args) =>
-                {
-                    SetTheme(GetWindowsTheme());
-                };
-
-                // Start listening for events
-                watcher.Start();
-            }
-            catch (Exception)
-            {
-                // This can fail on Windows 7
-            }
-            SetTheme(GetWindowsTheme());
         }
 
         private static WindowsTheme GetWindowsTheme()

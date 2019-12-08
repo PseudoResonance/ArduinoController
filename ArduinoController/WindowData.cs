@@ -33,7 +33,7 @@ namespace ArduinoController
                 if (_updateCount != value)
                 {
                     _updateCount = value;
-                    Main.updateDelay = (short)_updateCount;
+                    Main.updateDelay = (byte)_updateCount;
                     OnPropertyChanged("UpdateCount");
                 }
             }
