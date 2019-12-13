@@ -59,8 +59,14 @@ namespace ArduinoController
             DataContext = data;
             instance.Controller.ItemsSource = joystickList;
             instance.Serial.ItemsSource = serialList;
+            this.Loaded += MainWindow_Loaded;
             ThreadPool.SetMaxThreads(1, 0);
             ThreadPool.QueueUserWorkItem(new WaitCallback(Initialize));
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.MinHeight = this.Height;
         }
 
         private void Initialize(Object state)
@@ -171,6 +177,7 @@ namespace ArduinoController
             DebugOutput.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
             DebugOutputLabel.Visibility = showDebug ? Visibility.Visible : Visibility.Hidden;
             DebugOutputRow.Height = new GridLength(showDebug ? 40 : 0);
+            this.MinHeight += (showDebug ? 40 : -40);
         }
 
         private void LightTheme_Click(object sender, RoutedEventArgs e)

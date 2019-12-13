@@ -99,71 +99,65 @@ namespace ArduinoController
             catch (SharpDXException) { }
             try
             {
+                double speed = rightTrigger - leftTrigger;
+                double rotation = leftX;
+                speed = (speed * speed) * (speed > 0 ? 1 : -1);
+                rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
+
+                double test = Math.Max(Math.Abs(speed), Math.Abs(rotation));
+                double maxSpeed = (test * test) * (test > 0 ? 1 : -1);
+
+                float motor1 = 0, motor2 = 0, motor3 = 0, motor4 = 0;
+                if (speed >= 0)
+                {
+                    if (rotation >= 0)
+                    {
+                        motor1 = (float) maxSpeed;
+                        motor2 = (float) (speed - rotation);
+                    }
+                    else
+                    {
+                        motor1 = (float) (speed + rotation);
+                        motor2 = (float) maxSpeed;
+                    }
+                }
+                else
+                {
+                    if (rotation >= 0)
+                    {
+                        motor1 = (float) (speed + rotation);
+                        motor2 = (float) -maxSpeed;
+                    }
+                    else
+                    {
+                        motor1 = (float) -maxSpeed;
+                        motor2 = (float) (speed - rotation);
+                    }
+                }
+                if (motor1 == -0) motor1 = 0;
+                if (motor2 == -0) motor2 = 0;
+                if (motor3 == -0) motor3 = 0;
+                if (motor4 == -0) motor4 = 0;
+                Array.Copy(ConvertToArray(motor1), 0, buffer, 2, 4);
+                Array.Copy(ConvertToArray(motor2), 0, buffer, 6, 4);
+                Array.Copy(ConvertToArray(motor3), 0, buffer, 10, 4);
+                Array.Copy(ConvertToArray(motor4), 0, buffer, 14, 4);
+                if (MainWindow.showDebug)
+                {
+                    String str = "";
+                    foreach (byte b in buffer)
+                    {
+                        str += b + " ";
+                    }
+                    MainWindow.instance.Dispatcher.Invoke(() =>
+                    {
+                        MainWindow.instance.DebugOutput.Text = str;
+                    });
+                }
                 if (serialPort != null && serialPort.IsOpen && IsSerialReady)
                 {
-                    double speed = rightTrigger - leftTrigger;
-                    double rotation = leftX;
-                    speed = (speed * speed) * (speed > 0 ? 1 : -1);
-                    rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
-
-                    double test = Math.Max(Math.Abs(speed), Math.Abs(rotation));
-                    double maxSpeed = (test * test) * (test > 0 ? 1 : -1);
-
-                    double motor1 = 0, motor2 = 0, motor3 = 0, motor4 = 0;
-                    if (speed >= 0)
-                    {
-                        if (rotation >= 0)
-                        {
-                            motor2 = maxSpeed;
-                            motor1 = speed - rotation;
-                        } else
-                        {
-                            motor2 = speed + rotation;
-                            motor1 = maxSpeed;
-                        }
-                    } else
-                    {
-                        if (rotation >= 0)
-                        {
-                            motor2 = speed + rotation;
-                            motor1 = -maxSpeed;
-                        } else
-                        {
-                            motor2 = -maxSpeed;
-                            motor1 = speed - rotation;
-                        }
-                    }
-
-                    byte[] tempArray = BitConverter.GetBytes(motor1);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 2, 4);
-                    tempArray = BitConverter.GetBytes(motor2);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 6, 4);
-                    tempArray = BitConverter.GetBytes(motor3);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 10, 4);
-                    tempArray = BitConverter.GetBytes(motor4);
-                    if (!BitConverter.IsLittleEndian)
-                        Array.Reverse(tempArray);
-                    Array.Copy(tempArray, 0, buffer, 14, 4);
 
                     serialPort.Write(buffer, 0, buffer.Length);
-                    if (MainWindow.showDebug)
-                    {
-                        String str = "";
-                        foreach (byte b in buffer)
-                        {
-                            str += b + " ";
-                        }
-                        MainWindow.instance.Dispatcher.Invoke(() =>
-                        {
-                            MainWindow.instance.DebugOutput.Text = str;
-                        });
-                    }
                 }
                 else if (MainWindow.testPortThread == null)
                 {
@@ -186,6 +180,14 @@ namespace ArduinoController
                     MainWindow.testPortThread.Start();
                 }
             }
+        }
+
+        private static byte[] ConvertToArray(float input)
+        {
+            byte[] ret = BitConverter.GetBytes(input);
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(ret);
+            return ret;
         }
 
         public static void CloseSerial(Object state)
