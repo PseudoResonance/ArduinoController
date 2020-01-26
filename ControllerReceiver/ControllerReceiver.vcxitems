@@ -18,6 +18,6 @@
     <Text Include="$(MSBuildThisFileDirectory)src\ControllerReceiver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)ControllerReceiver.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\ControllerReceiver.cpp" />
   </ItemGroup>
 </Project>

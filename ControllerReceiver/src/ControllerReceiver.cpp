@@ -44,7 +44,7 @@ MS_DCMotor motor4(4);
 
 Controller controller;
 
-void init(long baudRate) {
+void init(long baudRate = 115200) {
 	Serial.begin(baudRate);
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, LOW);

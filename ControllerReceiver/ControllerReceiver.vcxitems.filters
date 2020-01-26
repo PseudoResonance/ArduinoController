@@ -17,7 +17,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(MSBuildThisFileDirectory)ControllerReceiver.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)src\ControllerReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

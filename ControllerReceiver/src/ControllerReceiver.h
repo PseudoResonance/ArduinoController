@@ -17,7 +17,7 @@
 #define BUTTON_X 16384
 #define BUTTON_Y 32768
 
-void init(long baudRate);
+void init(long baudRate = 115200);
 double getLeftX();
 double getLeftY();
 double getRightX();
