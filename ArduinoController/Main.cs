@@ -49,7 +49,7 @@ namespace ArduinoController
             }
         }*/
 
-        private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         private static float CalculateDeadzone(short n)
         {
@@ -75,12 +75,7 @@ namespace ArduinoController
 
         public static void UpdateJoystick()
         {
-            double leftX = 0;
-            double leftY = 0;
-            double rightX = 0;
-            double rightY = 0;
-            double leftTrigger = 0;
-            double rightTrigger = 0;
+            float leftX = 0, leftY = 0, rightX = 0, rightY = 0, leftTrigger = 0, rightTrigger = 0;
             GamepadButtonFlags buttons = 0;
             try
             {
@@ -99,49 +94,34 @@ namespace ArduinoController
             catch (SharpDXException) { }
             try
             {
-                double speed = rightTrigger - leftTrigger;
-                double rotation = leftX;
-                speed = (speed * speed) * (speed > 0 ? 1 : -1);
-                rotation = (rotation * rotation) * (rotation > 0 ? 1 : -1);
-
-                double test = Math.Max(Math.Abs(speed), Math.Abs(rotation));
-                double maxSpeed = (test * test) * (test > 0 ? 1 : -1);
-
-                float motor1 = 0, motor2 = 0, motor3 = 0, motor4 = 0;
-                if (speed >= 0)
-                {
-                    if (rotation >= 0)
-                    {
-                        motor1 = (float) maxSpeed;
-                        motor2 = (float) (speed - rotation);
-                    }
-                    else
-                    {
-                        motor1 = (float) (speed + rotation);
-                        motor2 = (float) maxSpeed;
-                    }
-                }
-                else
-                {
-                    if (rotation >= 0)
-                    {
-                        motor1 = (float) (speed + rotation);
-                        motor2 = (float) -maxSpeed;
-                    }
-                    else
-                    {
-                        motor1 = (float) -maxSpeed;
-                        motor2 = (float) (speed - rotation);
-                    }
-                }
-                if (motor1 == -0) motor1 = 0;
-                if (motor2 == -0) motor2 = 0;
-                if (motor3 == -0) motor3 = 0;
-                if (motor4 == -0) motor4 = 0;
-                Array.Copy(ConvertToArray(motor1), 0, buffer, 2, 4);
-                Array.Copy(ConvertToArray(motor2), 0, buffer, 6, 4);
-                Array.Copy(ConvertToArray(motor3), 0, buffer, 10, 4);
-                Array.Copy(ConvertToArray(motor4), 0, buffer, 14, 4);
+                byte[] tempArray = BitConverter.GetBytes(leftX);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 2, 4);
+                tempArray = BitConverter.GetBytes(leftY);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 6, 4);
+                tempArray = BitConverter.GetBytes(rightX);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 10, 4);
+                tempArray = BitConverter.GetBytes(rightY);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 14, 4);
+                tempArray = BitConverter.GetBytes(leftTrigger);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 18, 4);
+                tempArray = BitConverter.GetBytes(rightTrigger);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 22, 4);
+                tempArray = BitConverter.GetBytes((ushort)buttons);
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(tempArray);
+                Array.Copy(tempArray, 0, buffer, 26, 2);
                 if (MainWindow.showDebug)
                 {
                     String str = "";
