@@ -145,7 +145,7 @@ namespace ArduinoController
             }
         }
 
-        private void JavaIP_FocusLost(object sender, RoutedEventArgs e)
+        /*private void JavaIP_FocusLost(object sender, RoutedEventArgs e)
         {
             String text = JavaIP.Text;
             if (text.Length > 0)
@@ -164,7 +164,7 @@ namespace ArduinoController
                     if (output != JavaReceiver.port)
                         JavaReceiver.SetSocketPort(output);
             }
-        }
+        }*/
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
@@ -235,16 +235,6 @@ namespace ArduinoController
             {
                 e.CancelCommand();
             }
-        }
-
-        private void Window_KeyUp(object sender, KeyEventArgs e)
-        {
-
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-
         }
 
         public void SetTheme(WindowsTheme theme)

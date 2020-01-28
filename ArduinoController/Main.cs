@@ -35,7 +35,7 @@ namespace ArduinoController
                 });
             }
         }
-        private static Boolean _isJavaConnected = false;
+        /*private static Boolean _isJavaConnected = false;
         private static Boolean IsJavaConnected
         {
             get { return _isJavaConnected; }
@@ -47,7 +47,7 @@ namespace ArduinoController
                     MainWindow.instance.JavaStatus.Fill = new SolidColorBrush(value ? Color.FromRgb(0, 255, 0) : Color.FromRgb(255, 0, 0));
                 });
             }
-        }
+        }*/
 
         private static byte[] buffer = new byte[] { 67, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -449,7 +449,7 @@ namespace ArduinoController
                         if (Enum.TryParse(settings[4], out WindowsTheme theme))
                             MainWindow.instance.SetTheme(theme);
                     }
-                    if (settings.Length >= 6)
+                    /*if (settings.Length >= 6)
                     {
                         JavaReceiver.ip = settings[5];
                         MainWindow.instance.JavaIP.Text = settings[5];
@@ -458,7 +458,7 @@ namespace ArduinoController
                     {
                         JavaReceiver.port = int.TryParse(settings[6], out int output) ? output : 2400;
                         MainWindow.instance.JavaPort.Text = JavaReceiver.port.ToString("D", CultureInfo.InvariantCulture);
-                    }
+                    }*/
                 }
             }
         }

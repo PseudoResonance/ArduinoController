@@ -4,8 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Arduino Controller" Closing="Window_Closing" MinWidth="450" Width="700" WindowStartupLocation="CenterScreen" SizeToContent="Height"
-        PreviewKeyUp="Window_KeyUp" PreviewKeyDown="Window_KeyDown">
+        Title="Arduino Controller" Closing="Window_Closing" MinWidth="450" Width="700" WindowStartupLocation="CenterScreen" SizeToContent="Height">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Settings">
@@ -28,7 +27,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
-                <RowDefinition Height="40"/>
+                <!--<RowDefinition Height="40"/>-->
                 <RowDefinition x:Name="DebugOutputRow" Height="0"/>
             </Grid.RowDefinitions>
             <Label x:Name="SelectedControllerLabel" Content="Selected Controller" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center"/>
@@ -36,8 +35,8 @@
             <Label x:Name="SelectedSerialLabel" Content="Selected Serial" Grid.Column="0" Grid.Row="2" VerticalContentAlignment="Center"/>
             <Rectangle x:Name="SerialStatus" Margin="0,0,5,0" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="2" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>
             <Label x:Name="BaudRateLabel" Content="Baud Rate" Grid.Column="0" Grid.Row="3" VerticalContentAlignment="Center"/>
-            <Label x:Name="JavaConnectedLabel" Content="Java Connected" Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center"/>
-            <Rectangle x:Name="JavaStatus" Margin="0,0,5,0" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="4" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>
+            <!--<Label x:Name="JavaConnectedLabel" Content="Java Connected" Grid.Column="0" Grid.Row="4" VerticalContentAlignment="Center"/>
+            <Rectangle x:Name="JavaStatus" Margin="0,0,5,0" HorizontalAlignment="Right" Fill="#FF0000" Grid.Column="0" Grid.Row="4" Width="15" Height="15" Stroke="#000" StrokeThickness="1"/>-->
             <Label x:Name="DebugOutputLabel" Visibility="Hidden" Content="Debug Output" Grid.Column="0" Grid.Row="5" VerticalContentAlignment="Center"/>
 
             <ComboBox x:Name="Controller" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Controller_SelectionChanged"/>
@@ -45,8 +44,8 @@
             <TextBox x:Name="DeadzoneText" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText" Text="{Binding DeadzoneCount, UpdateSourceTrigger=LostFocus}"/>
             <ComboBox x:Name="Serial" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" SelectionChanged="Serial_SelectionChanged"/>
             <TextBox x:Name="BaudRate" Grid.Column="1" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Text="115200" LostFocus="Baud_FocusLost" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText"/>
-            <TextBox x:Name="JavaIP" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" TextWrapping="Wrap" Text="127.0.0.1" LostFocus="JavaIP_FocusLost" DataObject.Pasting="TestDecimalPaste" PreviewTextInput="TestDecimalText"/>
-            <TextBox x:Name="JavaPort" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="2400" LostFocus="JavaPort_FocusLost" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText"/>
+            <!--<TextBox x:Name="JavaIP" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,90,5" TextWrapping="Wrap" Text="127.0.0.1" LostFocus="JavaIP_FocusLost" DataObject.Pasting="TestDecimalPaste" PreviewTextInput="TestDecimalText"/>
+            <TextBox x:Name="JavaPort" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" HorizontalAlignment="Right" Width="75" TextWrapping="Wrap" Text="2400" LostFocus="JavaPort_FocusLost" DataObject.Pasting="TestNumericPaste" PreviewTextInput="TestNumericText"/>-->
             <TextBox x:Name="DebugOutput" Visibility="Hidden" Grid.Column="1" Grid.Row="5" VerticalAlignment="Center" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Focusable="False"/>
         </Grid>
     </DockPanel>
