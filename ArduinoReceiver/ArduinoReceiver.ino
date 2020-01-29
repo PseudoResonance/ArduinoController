@@ -3,7 +3,7 @@
 
 #define BAUD_RATE 115200
 
-#define MAX_SPEED 200
+#define MAX_SPEED 250
 
 void setup() {
 	init(BAUD_RATE);
@@ -49,7 +49,6 @@ void runControls() {
 		}
 		setMotor(getMotor1(), (uint8_t)round(abs(leftSpeed) * MAX_SPEED), leftSpeed < 0);
 		setMotor(getMotor2(), (uint8_t)round(abs(rightSpeed) * MAX_SPEED), rightSpeed < 0);
-		digitalWrite(LED_BUILTIN, HIGH);
 	}
 	else {
 		setMotor(getMotor1(), 0, false);

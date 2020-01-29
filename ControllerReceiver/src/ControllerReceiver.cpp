@@ -165,6 +165,7 @@ bool runLoop() {
 				digitalWrite(LED_BUILTIN, HIGH);
 				lastRec = millis();
 			}
+			charsReceived++;
 		}
 		else {
 			if (in == 114 && last == 67) {
